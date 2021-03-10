@@ -6,20 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const taskList = document.getElementById('tasks');
     const task = document.getElementById('new-task-description').value;
-    const newTask = document.createElement('li');
+    const duration = document.getElementById('new-task-duration').value;
+    const dueDate = document.getElementById('new-task-due-date').value;
 
+    const newTask = document.createElement('li');
     newTask.id = `list-${listCount}`;
     newTask.setAttribute('priority', document.getElementById('priority').value)
-
-    setTaskColor(document.getElementById('priority').value, newTask);
-   
-    // const deleteButton = document.createElement('button');
-    // deleteButton.setAttribute('type', 'submit');
-    // deleteButton.textContent = 'X';
-    // newTask.appendChild(task);
-    // newTask.appendChild(deleteButton);
-   
-    newTask.innerHTML = `${task} <button id='delete-${listCount}' type='submit'>X</button>`;
+    newTask.innerHTML = `${task} ${duration} ${dueDate} <button id='delete-${listCount}' type='submit'>X</button>`;
+    setTaskPriority(document.getElementById('priority').value, newTask);
     taskList.appendChild(newTask);
    
     const listElement = document.getElementById(`delete-${listCount}`);
@@ -27,32 +21,50 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(`list-${listElement.id.slice(-1)}`).remove();
       listCount--;
     });
-
-    // const allTasks = document.getElementById('tasks').getElementsByTagName('li');
-    let tasksArray = [];
-    Array.from(document.querySelectorAll('#tasks>li'), li => tasksArray.push({
-      id: li.id, 
-      innerHTML: li.innerHTML, 
-      priority: li.getAttribute('priority')
-    }));
-    tasksArray.sort((task1, task2) => task2.priority - task1.priority);
-    console.log(tasksArray);
-    // console.log(tasksArray.sort((task1, task2) => task1.getAttribute('priority') - task2.getAttribute('priority')));
-
-    // allTasks.sort((taskOne, taskTwo) => taskOne.priority - taskTwo.priority);
-    // console.log(allTasks);
-
-    // document.getElementById('tasks').appendChild(deleteButton);     
     
     document.getElementById('new-task-description').value = '';
+    document.getElementById('new-task-duration').value = '';
+    document.getElementById('new-task-due-date').value = '';
     listCount++;
   });
 });
 
-const setTaskColor = (value, task) => {
+const setTaskPriority = (value, task) => {
   switch(value) {
-    case '1': task.style.color = 'green'; break;
-    case '2': task.style.color = 'yellow'; break;
-    case '3': task.style.color = 'red'; break;
+    case '1': {
+      task.style.color = 'green'; 
+      task.priority = 1;
+      break;
+    };
+    case '2': {
+      task.style.color = 'yellow'; 
+      task.priority = 2;
+      break;
+    }
+    case '3': {
+      task.style.color = 'red'; 
+      task.priority = 3;
+      break;
+    }
   };
+};
+
+document.getElementById('sort').addEventListener('change', event => {
+  switch(event.target.value) {
+    case '0': break;
+    case '1': sortTasks('ascending');  break;
+    case '2': sortTasks('descending'); break;
+  }
+});
+
+const sortTasks = sortOrder => {
+  let tasksArray = Array.from(document.querySelectorAll('#tasks>li')).sort((task1, task2) => {
+    return sortOrder === 'ascending' ? task1.priority - task2.priority : task2.priority - task1.priority; 
+  });
+
+  while (document.getElementById('tasks').firstChild) {
+    document.getElementById('tasks').firstChild.remove();
+  }
+  
+  tasksArray.forEach(task => document.getElementById('tasks').appendChild(task));
 };
